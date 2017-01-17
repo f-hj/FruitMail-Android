@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_login"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="fr.fruitice.mail.LoginActivity"
+    android:background="@drawable/side_nav_bar">
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        app:srcCompat="@drawable/ic_logo"
+        android:id="@+id/imageView2"
+        android:layout_marginTop="36dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:layout_below="@+id/imageView2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="56dp"
+        android:id="@+id/user"
+        android:textColorHint="@color/colorTranslucent"
+        android:textColor="@color/colorGray"
+        android:hint="User"
+        style="@style/AppTheme.LoginEditText"
+        android:theme="@style/AppTheme.LoginEditText"
+        />
+
+    <EditText
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:layout_marginTop="32dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:layout_below="@+id/user"
+        android:layout_alignStart="@+id/user"
+        android:id="@+id/pass"
+        android:textColorHint="@color/colorTranslucent"
+        android:textColor="@color/colorGray"
+        android:hint="Pass"
+        style="@style/AppTheme.LoginEditText"
+        android:theme="@style/AppTheme.LoginEditText"
+        android:fontFamily="sans-serif" />
+</RelativeLayout>
