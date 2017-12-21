@@ -124,7 +124,13 @@ public class MailActivity extends AppCompatActivity {
         Button button = (Button) findViewById(R.id.button);
         subject.setText(mail.subject);
         from.setText(mail.from.get(0).name);
-        to.setText(mail.to.get(0).name + " <" + mail.to.get(0).address + ">");
+        if (mail.to == null && mail.envelopeTo == null) {
+            to.setText("undefined");
+        } else if (mail.to != null) {
+            to.setText(mail.to.get(0).name + " <" + mail.to.get(0).address + ">");
+        } else if (mail.envelopeTo != null) {
+            to.setText(mail.envelopeTo.get(0).name + " <" + mail.envelopeTo.get(0).address + ">");
+        }
         text.setText(mail.text);
         web.setVisibility(View.INVISIBLE);
         //web.getSettings().setLoadWithOverviewMode(true);

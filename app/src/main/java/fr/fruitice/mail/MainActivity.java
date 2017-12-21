@@ -26,6 +26,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SubMenu;
@@ -38,6 +40,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,9 +56,13 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import fr.fruitice.mail.Objects.Folder;
+import fr.fruitice.mail.Objects.Folders;
 import fr.fruitice.mail.Objects.Mail;
 
 public class MainActivity extends AppCompatActivity
@@ -66,10 +74,16 @@ public class MainActivity extends AppCompatActivity
     private SwipeRefreshLayout mRefresh;
     LinearLayoutManager mLayoutManager;
     boolean loading;
+    private Map<MenuItem, String> map = new HashMap<MenuItem, String>();
+
+    private String category = "new";
+    private String folder = "inbox";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         SharedPreferences sharedPref = getSharedPreferences("fruitmail", MODE_PRIVATE);
         String token = sharedPref.getString("token", null);
@@ -104,6 +118,41 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
 
+        View head = navigationView.getHeaderView(0);
+        final EditText search = (EditText) head.findViewById(R.id.searchText);
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.d("search", "" + charSequence);
+                final Menu menu = navigationView.getMenu();
+                if (menu == null || menu.size() < 3) {
+                    return;
+                }
+                for (int k = 0; k < menu.size(); k++) {
+                    final Menu subMenu = menu.getItem(k).getSubMenu();
+                    for (int j = 0; j < subMenu.size(); j++) {
+                        if (!subMenu.getItem(j).getTitle().toString().contains(charSequence + "")) {
+                            subMenu.getItem(j).setVisible(false);
+                        } else {
+                            subMenu.getItem(j).setVisible(true);
+                        }
+                    }
+                }
+                search.requestFocus();
+            }
+
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                search.requestFocus();
+            }
+        });
+
         loading = false;
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -129,58 +178,30 @@ public class MainActivity extends AppCompatActivity
             public void result(String data) {
 
                 Gson gson = new Gson();
-                Type listType = new TypeToken<List<Folder>>(){}.getType();
-                List<Folder> folders = gson.fromJson(data, listType);
+                Folders folders = gson.fromJson(data, Folders.class);
 
                 final Menu menu = navigationView.getMenu();
 
+                SubMenu freshMenu = menu.addSubMenu("Fresh");
                 int i = 0;
-
-                //TODO: add all & unread
-
-                for (Folder folder: folders) {
-                    MenuItem mi = menu.add(folder.name);
-                    mi.setCheckable(true);
-
-                    if (i == 0) {
-                        mi.setChecked(true);
-                    }
-
-                    if (folder.stick != null) {
-                        switch (folder.stick) {
-                            case "peterriver":
-                                mi.setIcon(R.drawable.stick_peterriver);
-                                break;
-                            case "orange":
-                                mi.setIcon(R.drawable.stick_orange);
-                                break;
-                            case "sunflower":
-                                mi.setIcon(R.drawable.stick_sunflower);
-                                break;
-                            case "emerald":
-                                mi.setIcon(R.drawable.stick_emerald);
-                                break;
-                            case "concret":
-                                mi.setIcon(R.drawable.stick_concret);
-                                break;
-                            case "alizarin":
-                                mi.setIcon(R.drawable.stick_alizarin);
-                                break;
-                            case "wetasphalt":
-                                mi.setIcon(R.drawable.stick_wetasphalt);
-                                break;
-                            case "amethyst":
-                                mi.setIcon(R.drawable.stick_amethyst);
-                                break;
-                            case "turquoise":
-                                mi.setIcon(R.drawable.stick_turquoise);
-                                break;
-                        }
-                    }
+                for (Folder folder: folders.fresh) {
+                    MenuItem mi = freshMenu.add(folder.name);
+                    setIcon(folder, mi, "new", i == 0);
                     i++;
                 }
+                Log.d("0 s", "" + i);
+                SubMenu readMenu = menu.addSubMenu("Read");
+                for (Folder folder: folders.read) {
+                    MenuItem mi = readMenu.add(folder.name);
+                    setIcon(folder, mi, "read", i == 0);
+                }
+                SubMenu doneMenu = menu.addSubMenu("Completed");
+                for (Folder folder: folders.done) {
+                    MenuItem mi = doneMenu.add(folder.name);
+                    setIcon(folder, mi, "done", i == 0);
+                }
             }
-        }.get("/folders");
+        }.get("/v2/folders");
 
     }
 
@@ -210,6 +231,43 @@ public class MainActivity extends AppCompatActivity
         }.get("/msgs?nb=10&direction=future&from=" + from);
     }
 
+    public void setIcon(Folder folder, MenuItem mi, String cat, boolean checked) {
+        mi.setCheckable(true);
+        mi.setChecked(checked);
+        if (folder.stick != null) {
+            switch (folder.stick) {
+                case "peterriver":
+                    mi.setIcon(R.drawable.stick_peterriver);
+                    break;
+                case "orange":
+                    mi.setIcon(R.drawable.stick_orange);
+                    break;
+                case "sunflower":
+                    mi.setIcon(R.drawable.stick_sunflower);
+                    break;
+                case "emerald":
+                    mi.setIcon(R.drawable.stick_emerald);
+                    break;
+                case "concret":
+                    mi.setIcon(R.drawable.stick_concret);
+                    break;
+                case "alizarin":
+                    mi.setIcon(R.drawable.stick_alizarin);
+                    break;
+                case "wetasphalt":
+                    mi.setIcon(R.drawable.stick_wetasphalt);
+                    break;
+                case "amethyst":
+                    mi.setIcon(R.drawable.stick_amethyst);
+                    break;
+                case "turquoise":
+                    mi.setIcon(R.drawable.stick_turquoise);
+                    break;
+            }
+        }
+        map.put(mi, cat);
+    }
+
     public void getMessages() {
         mRefresh.setRefreshing(true);
         long from = 0;
@@ -234,7 +292,17 @@ public class MainActivity extends AppCompatActivity
             public void error(VolleyError error) {
                 super.error(error);
             }
-        }.get("/msgs?nb=10&from=" + from);
+        }.get("/msgs/" + category + "/" + folder + "?nb=10&from=" + from);
+    }
+
+    public void getMessages(String category, String folder) {
+        if (!Objects.equals(category, this.category) || !Objects.equals(folder, this.folder)) {
+            mailList.clear();
+            mAdapter.notifyDataSetChanged();
+            this.category = category;
+            this.folder = folder;
+            getMessages();
+        }
     }
 
     public void setMessages() {
@@ -280,6 +348,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override public void onLongItemClick(View view, int position) {
+                view.setBackgroundColor(Color.rgb(220, 220, 220));
                 // do whatever
             }
         }));
@@ -295,10 +364,8 @@ public class MainActivity extends AppCompatActivity
                     int totalItemCount = mLayoutManager.getItemCount();
                     int pastVisiblesItems = mLayoutManager.findFirstVisibleItemPosition();
 
-                    if (!loading)
-                    {
-                        if ( (visibleItemCount + pastVisiblesItems) >= totalItemCount)
-                        {
+                    if (!loading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
                             loading = true;
                             Log.v("...", "Last Item Wow !");
                             getMessages();
@@ -328,12 +395,33 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         item.getTitle();
+        String cat = map.get(item);
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        uncheckAllMenuItems(navigationView);
 
-        Snackbar.make(findViewById(R.id.recyclerView), "Switch to: " + item.getTitle(), Snackbar.LENGTH_SHORT)
+        Snackbar.make(findViewById(R.id.recyclerView), "Switch to " + cat + "/" + item.getTitle(), Snackbar.LENGTH_SHORT)
                 .setAction("Action", null).show();
+
+        getMessages(cat, item.getTitle() + "");
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void uncheckAllMenuItems(NavigationView navigationView) {
+        final Menu menu = navigationView.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            if (item.hasSubMenu()) {
+                SubMenu subMenu = item.getSubMenu();
+                for (int j = 0; j < subMenu.size(); j++) {
+                    MenuItem subMenuItem = subMenu.getItem(j);
+                    subMenuItem.setChecked(false);
+                }
+            } else {
+                item.setChecked(false);
+            }
+        }
     }
 }

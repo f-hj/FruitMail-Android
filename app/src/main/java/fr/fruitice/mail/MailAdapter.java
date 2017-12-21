@@ -52,7 +52,11 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MyViewHolder> 
         holder.from.setText(mail.from.get(0).name);
         holder.text.setText(mail.text);
         holder.date.setText(android.text.format.DateUtils.getRelativeTimeSpanString(mail.date));
-        holder.read.setText(mail.read ? "T" : "F");
+        if (mail.read == null) {
+            holder.read.setText("F");
+        } else {
+            holder.read.setText(mail.read ? "T" : "F");
+        }
     }
 
     @Override

@@ -7,4 +7,10 @@ package fr.fruitice.mail.Objects;
 public class Folder {
     public String name;
     public String stick;
+
+    public Folder() {}
+
+    public Folder(String name) {
+        this.name = name;
+    }
 }

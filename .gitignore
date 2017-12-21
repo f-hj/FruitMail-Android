@@ -41,3 +41,6 @@ captures/
 
 # API Keys
 google-services.json
+
+# MacOS crap files
+.DS_Store

@@ -14,6 +14,7 @@ public class Mail implements Serializable {
     public Long date;
     public List<Address> from;
     public List<Address> to;
+    public List<Address> envelopeTo;
     public String folder;
     public List<Attachment> attachments;
     public String id;
