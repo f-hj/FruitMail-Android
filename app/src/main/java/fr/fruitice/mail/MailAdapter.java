@@ -28,9 +28,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MyViewHolder> 
             super(view);
             subject = (TextView) view.findViewById(R.id.subject);
             from = (TextView) view.findViewById(R.id.from);
-            text = (TextView) view.findViewById(R.id.text);
             date = (TextView) view.findViewById(R.id.date);
-            read = (TextView) view.findViewById(R.id.read);
         }
     }
 
@@ -50,13 +48,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MyViewHolder> 
         final Mail mail = mailList.get(position);
         holder.subject.setText(mail.subject);
         holder.from.setText(mail.from.get(0).name);
-        holder.text.setText(mail.text);
         holder.date.setText(android.text.format.DateUtils.getRelativeTimeSpanString(mail.date));
-        if (mail.read == null) {
-            holder.read.setText("F");
-        } else {
-            holder.read.setText(mail.read ? "T" : "F");
-        }
     }
 
     @Override

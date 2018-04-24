@@ -6,4 +6,8 @@
 
     <string name="action_settings">Settings</string>
 
+    <string name="compose">Compose</string>
+    <string name="compose_long">Compose a mail</string>
+    <string name="compose_disabled">Cannot compose</string>
+
 </resources>

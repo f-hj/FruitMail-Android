@@ -17,11 +17,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     private MailAdapter mAdapter;
     private SwipeRefreshLayout mRefresh;
     LinearLayoutManager mLayoutManager;
+    private EditText search;
     boolean loading;
     private Map<MenuItem, String> map = new HashMap<MenuItem, String>();
 
@@ -108,10 +109,32 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                Log.d("search", "clear focus");
+                search.clearFocus();
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
         toggle.syncState();
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -119,7 +142,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setItemIconTintList(null);
 
         View head = navigationView.getHeaderView(0);
-        final EditText search = (EditText) head.findViewById(R.id.searchText);
+        search = (EditText) head.findViewById(R.id.searchText);
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -143,13 +166,20 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 }
-                search.requestFocus();
             }
 
-
             @Override
-            public void afterTextChanged(Editable editable) {
-                search.requestFocus();
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (drawer.isDrawerOpen(GravityCompat.START) && !hasFocus) {
+                    Log.d("search", "request focus");
+                    v.requestFocus();
+                }
             }
         });
 

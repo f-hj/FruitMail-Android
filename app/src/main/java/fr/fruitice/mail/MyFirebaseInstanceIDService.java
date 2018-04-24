@@ -1,5 +1,7 @@
 package fr.fruitice.mail;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.util.Log;
 
 
