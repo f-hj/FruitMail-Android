@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import fr.fruitice.mail.Objects.Address;
 import fr.fruitice.mail.Objects.DomainAddress;
 import fr.fruitice.mail.Objects.MailWrited;
 import fr.fruitice.mail.Objects.MailWritedReturn;
@@ -127,7 +128,11 @@ public class WriteMailActivity extends AppCompatActivity {
                 TextView subject = (TextView) findViewById(R.id.subject);
                 m.from.name = name.getText().toString();
                 m.from.address = spinner.getSelectedItem().toString();
-                m.to.address = to.getText().toString();
+                String addresses = to.getText().toString();
+                String[] list = addresses.split(",");
+                for (int i = 0; i < list.length; i++) {
+                    m.to.add(new Address(list[i]));
+                }
                 m.markdown = text.getText().toString();
                 m.subject = subject.getText().toString();
 

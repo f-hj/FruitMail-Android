@@ -6,10 +6,12 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
@@ -38,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
                 new Query(LoginActivity.this) {
                     @Override
                     public void result(String data) {
+                        Log.d("LoginActivity", data);
                         progressDialog.cancel();
                         Gson gson = new Gson();
                         LoginReturn login = gson.fromJson(data, LoginReturn.class);
@@ -45,12 +48,13 @@ public class LoginActivity extends AppCompatActivity {
                             SharedPreferences sharedPref = getSharedPreferences("fruitmail", MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString("token", login.token);
+                            Log.d("LoginActivity", login.token);
 
                             //made this sync for other activity
-                            editor.commit();
+                            editor.apply();
 
                             String token = FirebaseInstanceId.getInstance().getToken();
-                            new Query(LoginActivity.this).post("/addFirebase", "{\"token\":\"" + token + "\"}");
+                            new Query(LoginActivity.this, login.token).post("/addFirebase", "{\"token\":\"" + token + "\"}");
 
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();

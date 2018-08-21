@@ -32,7 +32,12 @@ public class Query {
     private String dUri = "https://mail-2.fruitice.fr";
 
     Query(Context context) {
-        mContext = context;
+        this.mContext = context;
+    }
+    Query(Context context, String token) {
+        this.mContext = context;
+        this.token = token;
+        Log.d("Query", "Init with token: " + this.token);
     }
 
     public void result(String data) {
@@ -92,6 +97,7 @@ public class Query {
     }
 
     void post(String url, final String data) {
+        Log.d("QueryPost", url);
         url = dUri + url;
 
 // Instantiate the RequestQueue.
@@ -138,11 +144,12 @@ public class Query {
         queue.add(stringRequest);
     }
 
-    String getToken() {
-        if (token == null) {
+    private String getToken() {
+        if (this.token == null) {
+            Log.d("Query", "Token is null");
             SharedPreferences sharedPref = mContext.getSharedPreferences("fruitmail", MODE_PRIVATE);
-            token = sharedPref.getString("token", null);
+            this.token = sharedPref.getString("token", null);
         }
-        return token;
+        return this.token;
     }
 }

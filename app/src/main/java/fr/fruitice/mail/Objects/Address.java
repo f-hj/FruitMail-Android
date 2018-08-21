@@ -9,4 +9,10 @@ import java.io.Serializable;
 public class Address implements Serializable {
     public String address;
     public String name;
+
+    public Address() {}
+
+    public Address(String addr) {
+        this.address = addr;
+    }
 }

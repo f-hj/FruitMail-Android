@@ -1,5 +1,8 @@
 package fr.fruitice.mail.Objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by florian on 26/12/2016.
  */
@@ -7,13 +10,13 @@ package fr.fruitice.mail.Objects;
 public class MailWrited {
     public String subject;
     public String markdown;
-    public Address to;
+    public List<Address> to;
     public Address from;
     public String references;
     public String inReplyTo;
 
     public MailWrited() {
-        this.to = new Address();
+        this.to = new ArrayList<Address>();
         this.from = new Address();
     }
 
