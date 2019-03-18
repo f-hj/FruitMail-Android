@@ -3,6 +3,7 @@ package fr.fruitice.mail;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +24,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Intent login = new Intent(Intent.ACTION_VIEW);
+        login.setData(Uri.parse("https://auth.fruitice.fr/oauth/interface?client_id=mail-android&redirect_uri=fr.fruitice.mail%3A%2FoauthCallback&scope=infos%20mails&response_type=token"));
+        startActivity(login);
 
         final EditText user = (EditText) findViewById(R.id.user);
         final EditText pass = (EditText) findViewById(R.id.pass);
