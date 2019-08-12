@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -47,5 +48,18 @@ public class NotificationSender {
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this
         notificationManager.createNotificationChannel(channel);
+    }
+
+    void removeNotification(int id) {
+        NotificationManager notificationManager = (NotificationManager)
+                mContext.getSystemService(NOTIFICATION_SERVICE);
+
+        if (notificationManager == null) {
+            Log.d(TAG, "cannot get service");
+            return;
+        }
+        Log.d(TAG, "got service");
+        notificationManager.cancel(id);
+
     }
 }

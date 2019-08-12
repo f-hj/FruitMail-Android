@@ -9,11 +9,14 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import java.util.UUID;
 
 /**
  * Created by florian on 27/12/2016.
@@ -55,7 +58,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             mNotificationSender.sendNotif(notifId, n.build());
             return;
+        } else if (remoteMessage.getData().get("type").equals("setasread") || remoteMessage.getData().get("type").equals("setasdone")) {
+            UUID id = UUID.fromString(remoteMessage.getData().get("id"));
+            mNotificationSender.removeNotification((int) id.getMostSignificantBits());
+            return;
         }
+
+        UUID id = UUID.fromString(remoteMessage.getData().get("id"));
+        notifId = (int) id.getMostSignificantBits();
 
 
         Intent clickIntent = new Intent(this, MailActivity.class);

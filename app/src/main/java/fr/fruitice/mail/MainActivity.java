@@ -1,5 +1,6 @@
 package fr.fruitice.mail;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -41,6 +42,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,14 +87,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent ubi = new Intent();
-        ubi.setAction("com.mi.android.globalpersonalassistant.getcurrentlocation");
-        ubi.putExtra("latitude", "0");
-        ubi.putExtra("longitude", "0");
-        sendBroadcast(ubi);
-
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-
         SharedPreferences sharedPref = getSharedPreferences("fruitmail", MODE_PRIVATE);
         String token = sharedPref.getString("token", null);
 
@@ -116,6 +110,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);
+
+        View head = navigationView.getHeaderView(0);
+        search = (EditText) head.findViewById(R.id.searchText);
+
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -133,6 +135,15 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onDrawerClosed(@NonNull View drawerView) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                //Find the currently focused view, so we can grab the correct window token from it.
+                View view = getCurrentFocus();
+                if (view == null) {
+                    view = (View) findViewById(android.R.id.content).getRootView();
+                }
+
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                 Log.d("search", "clear focus");
                 search.clearFocus();
             }
@@ -142,14 +153,9 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
         toggle.syncState();
 
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setItemIconTintList(null);
-
-        View head = navigationView.getHeaderView(0);
-        search = (EditText) head.findViewById(R.id.searchText);
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -435,9 +441,6 @@ public class MainActivity extends AppCompatActivity
         String cat = map.get(item);
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         uncheckAllMenuItems(navigationView);
-
-        Snackbar.make(findViewById(R.id.recyclerView), "Switch to " + cat + "/" + item.getTitle(), Snackbar.LENGTH_SHORT)
-                .setAction("Action", null).show();
 
         getMessages(cat, item.getTitle() + "");
 
